@@ -249,11 +249,11 @@ This line makes symbol `Reset_Handler` to be global, so that code from other sou
 	crt0:
 		b main
 
-Why do I have two symbols but nothing between? Because there will be some initialize code there for the next tutorials. These three lines are the minimal code to execute the `main()`. For newbies(like me), notice that the symbols don't take up memory, so the only line of code here is `b main`. As documented in both *CM0 Guide* and *81x Manual*, `B{cc} label` is the instruction for "Branch to <label> {conditionally}". In this case, "branch to label `main` unconditionally".
+Why do I have two symbols but nothing between? Because there will be some initialize code there for the next tutorials. These three lines are the minimal code to execute the `main()`. For newbies(like me), notice that the symbols don't take up memory, so the only line of code here is `b main`. As documented in both *CM0 Guide* and *81x Manual*, `B{cc} <label>` is the instruction for "Branch to \<label\> {conditionally}". In this case, "branch to label `main` unconditionally".
 
 Now the startup code is finished. Do the same thing as compiling the example:
 
 	make
 	make flash
 
-Don't forget to press the ISP button. Also don't forget to reset after programming.
+Don't forget to press the ISP button. Also don't forget to reset after programming. After reset, you should see the LED blink!
