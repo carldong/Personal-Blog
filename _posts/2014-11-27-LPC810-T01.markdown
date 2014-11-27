@@ -1,6 +1,6 @@
 ---
 layout: tutorial
-title: "LPC810 Cortex-M0+ Programming from Scratch - Part 0: LED Blink 1"
+title: "LPC810 Cortex-M0+ Programming from Scratch - Part 1: LED Blink 1"
 date: "2014-11-27 14:38:16"
 categories: tutorials
 tags: tutorial Cortex-M0+ ARM
