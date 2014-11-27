@@ -6,55 +6,53 @@ Disassembly of section .text:
 
 00000000 <main-0xc4>:
    0:	10000400 	andne	r0, r0, r0, lsl #8
-   4:	00000115 	andeq	r0, r0, r5, lsl r1
+   4:	00000111 	andeq	r0, r0, r1, lsl r1
 	...
 
 000000c4 <main>:
   c4:	b580      	push	{r7, lr}
   c6:	b082      	sub	sp, #8
   c8:	af00      	add	r7, sp, #0
-  ca:	4b0e      	ldr	r3, [pc, #56]	; (104 <main+0x40>)
-  cc:	4a0d      	ldr	r2, [pc, #52]	; (104 <main+0x40>)
-  ce:	6812      	ldr	r2, [r2, #0]
-  d0:	2108      	movs	r1, #8
-  d2:	430a      	orrs	r2, r1
-  d4:	601a      	str	r2, [r3, #0]
-  d6:	4b0c      	ldr	r3, [pc, #48]	; (108 <main+0x44>)
-  d8:	4a0b      	ldr	r2, [pc, #44]	; (108 <main+0x44>)
-  da:	6812      	ldr	r2, [r2, #0]
-  dc:	2104      	movs	r1, #4
-  de:	430a      	orrs	r2, r1
-  e0:	601a      	str	r2, [r3, #0]
-  e2:	4b0a      	ldr	r3, [pc, #40]	; (10c <main+0x48>)
-  e4:	4a09      	ldr	r2, [pc, #36]	; (10c <main+0x48>)
-  e6:	6812      	ldr	r2, [r2, #0]
-  e8:	2104      	movs	r1, #4
-  ea:	430a      	orrs	r2, r1
-  ec:	601a      	str	r2, [r3, #0]
-  ee:	4b08      	ldr	r3, [pc, #32]	; (110 <main+0x4c>)
-  f0:	607b      	str	r3, [r7, #4]
-  f2:	e002      	b.n	fa <main+0x36>
-  f4:	687b      	ldr	r3, [r7, #4]
-  f6:	3b01      	subs	r3, #1
-  f8:	607b      	str	r3, [r7, #4]
-  fa:	687b      	ldr	r3, [r7, #4]
-  fc:	2b00      	cmp	r3, #0
-  fe:	dcf9      	bgt.n	f4 <main+0x30>
- 100:	e7ef      	b.n	e2 <main+0x1e>
- 102:	46c0      	nop			; (mov r8, r8)
- 104:	4004c1c0 	andmi	ip, r4, r0, asr #3
- 108:	a0002000 	andge	r2, r0, r0
- 10c:	a0002300 	andge	r2, r0, r0, lsl #6
- 110:	0003a980 	andeq	sl, r3, r0, lsl #19
+  ca:	4b0d      	ldr	r3, [pc, #52]	; (100 <main+0x3c>)
+  cc:	2241      	movs	r2, #65	; 0x41
+  ce:	4252      	negs	r2, r2
+  d0:	601a      	str	r2, [r3, #0]
+  d2:	4b0c      	ldr	r3, [pc, #48]	; (104 <main+0x40>)
+  d4:	4a0b      	ldr	r2, [pc, #44]	; (104 <main+0x40>)
+  d6:	6812      	ldr	r2, [r2, #0]
+  d8:	2104      	movs	r1, #4
+  da:	430a      	orrs	r2, r1
+  dc:	601a      	str	r2, [r3, #0]
+  de:	4b0a      	ldr	r3, [pc, #40]	; (108 <main+0x44>)
+  e0:	4a09      	ldr	r2, [pc, #36]	; (108 <main+0x44>)
+  e2:	6812      	ldr	r2, [r2, #0]
+  e4:	2104      	movs	r1, #4
+  e6:	430a      	orrs	r2, r1
+  e8:	601a      	str	r2, [r3, #0]
+  ea:	4b08      	ldr	r3, [pc, #32]	; (10c <main+0x48>)
+  ec:	607b      	str	r3, [r7, #4]
+  ee:	e002      	b.n	f6 <main+0x32>
+  f0:	687b      	ldr	r3, [r7, #4]
+  f2:	3b01      	subs	r3, #1
+  f4:	607b      	str	r3, [r7, #4]
+  f6:	687b      	ldr	r3, [r7, #4]
+  f8:	2b00      	cmp	r3, #0
+  fa:	dcf9      	bgt.n	f0 <main+0x2c>
+  fc:	e7ef      	b.n	de <main+0x1a>
+  fe:	46c0      	nop			; (mov r8, r8)
+ 100:	4000c1c0 	andmi	ip, r0, r0, asr #3
+ 104:	a0002000 	andge	r2, r0, r0
+ 108:	a0002300 	andge	r2, r0, r0, lsl #6
+ 10c:	0003a980 	andeq	sl, r3, r0, lsl #19
 
-00000114 <Reset_Handler>:
- 114:	e7d6      	b.n	c4 <main>
- 116:	46c0      	nop			; (mov r8, r8)
+00000110 <Reset_Handler>:
+ 110:	e7d8      	b.n	c4 <main>
+ 112:	46c0      	nop			; (mov r8, r8)
 
 Disassembly of section .comment:
 
 00000000 <.comment>:
-   0:	3a434347 	bcc	10d0d24 <__end+0x10d0c0c>
+   0:	3a434347 	bcc	10d0d24 <__end_text__+0x10d0c10>
    4:	2e342820 	cdpcs	8, 3, cr2, cr4, cr0, {1}
    8:	2d322e38 	ldccs	14, cr2, [r2, #-224]!	; 0xffffff20
    c:	62753431 	rsbsvs	r3, r5, #822083584	; 0x31000000

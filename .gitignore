@@ -52,3 +52,4 @@ STM32F10x_StdPeriph_Lib*/
 *.png
 *.jpg
 *.JPG
+*.disasm

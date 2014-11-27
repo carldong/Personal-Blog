@@ -8,7 +8,7 @@
    remember I don't give any warrenty
  */
 
-ENTRY(Reset_Handler);
+/* ENTRY(Reset_Handler); */
 MEMORY {
     FLASH(rx) : ORIGIN = 0x0, LENGTH = 4K
     RAM(rwx) : ORIGIN = 0x10000000, LENGTH = 1K
@@ -20,10 +20,15 @@ SECTIONS {
         KEEP(* (.isr_vectors));
 	. = ALIGN(4);
 	. = 0xC4;		/* The end of vectors. Just for tutorial 0 */
-	__vec_enc__ = .;
+	__vec_end__ = .;
 	* (.text);
+	. = ALIGN(4);
 	__end_text__ = .;
-    }
+    } > FLASH
+    .data : AT (__end_text__) {
+    	__start_data__ = .;
+	* (.data*);
+    } > RAM
     __stack_top = ORIGIN(RAM) + LENGTH(RAM);
 }
 

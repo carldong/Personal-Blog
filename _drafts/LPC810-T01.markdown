@@ -58,6 +58,17 @@ Done!
 
 # Prepare Source code base
 
+## Just test hardware
+Example Source Code if you like to just download and try: [00-Getting_Started.tar.xz]({{ site.baseurl/archives/00-Getting_Started.tar.xz }})
+
+Unpack the file somewhere you can remember. Plug the TTL-USB cable in(with the breadboard, of course). Hold the ISP button, then press the reset button. Still holding ISP button, execute
+
+	make flash
+
+in the directory using UNIX command line(I assume you know how to do so). 
+
+
+## Starting from scratch
 Make a new folder, say, '00-Getting_Started'. Create a *Makefile*:
 
 {% highlight Makefile %}
@@ -70,4 +81,5 @@ Then, create the folders and files referenced by the Makefile:
 mkdir -pv LPC810
 touch main.c crt0.S LPC810/lpc810.ld
 {% endhighlight %}
+
 
