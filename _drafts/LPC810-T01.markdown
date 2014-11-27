@@ -1,11 +1,73 @@
 ---
 layout: tutorial
-title: Getting Started With LPC810 Cortex-M0+ Microcontroller
+title: Getting Started With LPC810 Cortex-M0+ Microcontroller from Scratch
 categories: tutorials
 tags: tutorial Cortex-M0+ ARM
 ---
 
 **Disclaimer: I am no ARM programming expert, and I myself am experimenting with all the things described in this series of, "tutorials". Therefore, I might be totally wrong in reasoning, but the code should be usable.**
 
+# What this (series) is about?
+I am currently experimenting with the LPC810 chip on Linux using the GCC toolchain. This is more like a progress of my experiment, but I hope it will help others. Actually it is more about compiler and linker than about embedded programming, because honestly, I don't have any problem on general purpose embedded programming since I have prior experience using AVR and STM32 *with preexisting libraries* such as *AVR-LibC* or *STM32 Standard Peripheral Library*. However, this time I am going to start from scratch. Which means, starting from assembly, linker scripts, startup code, etc. Since I can't find any "standard" NXP LPC810 C headers, I will write my own.
+
 # The LPC810
-More specifically, the **LPC810M021FN8**, is a small ARM Cortex-M0+ chip with 4kB flash and 1kB SRAM.
+More specifically, the [**LPC810M021FN8**](http://www.nxp.com/products/microcontrollers/cortex_m0_m0/lpc800/LPC810M021FN8.html), is a small ARM Cortex-M0+ chip with 4kB flash and 1kB SRAM. Not much, right? However, the best part is that it comes as a DIP-8 package, which means you can plug it right to a breadboard and start experimenting. Also, it is amazingly cheap comparing to other ARM chips: as of the date of writing, 2014-11-27, the price on [Mouser](http://mouser.com) is $2.41.
+
+This chip does have a lot of limitations though. The one biggest down side for me is that it doesn't come with Analog-Digital Converter. It does have two Analog-Digital Comparater, though. The next obvious reason is that there are only 6 GPIOs, where one is taken by _RESET_(PIO0_5), and two are not enabled by default(PIO0\_2 and PIO0\_3, taken by SWD interface). However, this chip should be enough to experiment with ARM Startup and linker scripts and other good stuff.
+
+**Disclaimer again: I am only starting to experiment with compilers/linker scripts, so I write terrible linker scripts. I miss multiple sections because I don't know what they do. As of the time I write this post, I only have the .text, .data, .bss section written because I don't understand what everything else are.**
+
+# Reader assumptions
+- Can use GNU/Linux (I am using GNU/Linux to do everything. Probably works on Windows, but need extra knowledge).
+- Knows basic assembly (Sorry, I am not good enough to teach this).
+- Knows basic C (I can talk about this, though)
+- At least programmed some embedded device before(like 8051 or AVR)
+- Knows how to read datasheet
+- Knows how to wire up a breadboard *without* a photo or schematic (I admit I am just lazy. The circuit is too simple anyway).
+
+# What you will need
+- An **LPC810** chip. Here I am using **LPC810M021FN8**.
+- A TTL-USB cable, 3.3V.
+- A piece of breadboard.
+- An indicator LED rated around $$10mA$$ (Or, just a random small 3mm/5mm LED).
+- A resistor around $$330\Omega$$.
+- At least one pushbutton.
+- [NXP LPC81xM Datasheet](http://www.nxp.com/documents/data_sheet/LPC81XM.pdf)
+- [LPC81x User Manual](http://www.nxp.com/documents/user_manual/UM10601.pdf)
+- [Cortex-M0+ Devices Generic User Guide](http://infocenter.arm.com/help/topic/com.arm.doc.dui0662b/DUI0662B_cortex_m0p_r0p1_dgug.pdf)
+- ARM Toolchain. If you don't have experience, get a precompiled one. I have several experience that when I compile my own and encountered some unsolvable problems, simply changing the toolchain fixed the problem. Try the gcc-arm on Ubuntu/Debian or the CodeSourcery toolchain.
+- [lpc21isp](http://sourceforge.net/projects/lpc21isp/). The downloader.
+
+# Hardware Wireup
+Wire the 3.3V to Pin 6(Vdd) of the LPC810. Connect ground to Pin 7(Vss).
+
+Connect Pin 5 to ground through a pushbutton. When Pin 5 is pulled down(i.e. the pushbutton is being pressed) during reset, chip enters ISP command handler, and can be programmed.
+
+Connect Pin 4(PIO0_2) to LED, series with resistor to ground. Pin 2 is the TXD in ISP mode, Pin 8 is the RXD in ISP mode. Connect them accordingly to the RX/TX pin of the TTL-USB converter. Note: my converter has its TX/RX label reversed for some version, so I have to connect TXD to TXD and RXD to RXD.
+
+If preferred, Pin 1(Reset) can be connected to ground through a pushbutton. I did not connect this button, so I reset by unplugging the TTL cable, but given that "Datasheet is the truth", this should work.
+
+# Software Preparation
+Install toolchain and lpc21isp (Ubuntu/Debian)
+
+{% highlight bash %}
+apt-get install gcc-arm lpc21isp
+{% endhighlight %}
+
+Done!
+
+# Prepare Source code base
+
+Make a new folder, say, '00-Getting_Started'. Create a *Makefile*:
+
+{% highlight Makefile %}
+{% include repo/00-Getting_Started/Makefile %}
+{% endhighlight %}
+
+Then, create the folders and files referenced by the Makefile:
+
+{% highlight bash %}
+mkdir -pv LPC810
+touch main.c crt0.S LPC810/lpc810.ld
+{% endhighlight %}
+

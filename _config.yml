@@ -9,6 +9,7 @@ url: "http://homepages.rpi.edu/~dongr2/" # the base hostname & protocol for your
 github_username:  carldong
 
 # Build settings
-markdown: rdiscount
+#markdown: rdiscount
+markdown: kramdown
 
 exclude: [upload.sh]
