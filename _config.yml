@@ -1,0 +1,14 @@
+# Site settings
+title: Rongcui Dong - Mad Scientist
+email: dongr2@rpi.edu
+description: > # this means to ignore newlines until "baseurl:"
+    This is the RPI homepage for Mad Scientist Carl!
+baseurl: "/home/43/dongr2/public_html" # the subpath of your site, e.g. /blog/
+url: "http://homepages.rpi.edu/~dongr2/" # the base hostname & protocol for your site
+#twitter_username: jekyllrb
+github_username:  carldong
+
+# Build settings
+markdown: rdiscount
+
+exclude: [upload.sh]
