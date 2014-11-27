@@ -13,6 +13,7 @@ module Jekyll
       @files.each_with_index { |f,i| 
         now = DateTime.now.strftime("%Y-%m-%d %H:%M:%S")
         replace(f, /^date: unpublished/mi) { |match| "date: \"" + now + "\"" }
+        replace(f, /^date: 0000-01-01/mi) { |match| "date: \"" + now + "\"" }
         now = Date.today.strftime("%Y-%m-%d")
         File.rename(f, "#{site.source}/_posts/#{now}-#{File.basename(f)}") 
       }
