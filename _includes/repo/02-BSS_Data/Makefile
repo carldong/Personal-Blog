@@ -32,7 +32,7 @@ $(TGT).elf: $(OBJS)
 
 $(TGT).hex: $(TGT).elf
 	$(OBJCOPY) $< -O ihex $@
-	$(OBJDUMP) -D $< > $(TGT).disasm
+	$(OBJDUMP) -SD $< > $(TGT).disasm
 	$(NM) -n $(TGT).elf > $(TGT).sym
 	$(SIZE) $(TGT).elf
 

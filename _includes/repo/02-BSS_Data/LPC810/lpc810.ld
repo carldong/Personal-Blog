@@ -24,6 +24,8 @@ SECTIONS {
         /*. = 0xC4;*/ /* End of vectors */
         * (.text);
         . = ALIGN(4);
+	* (.rodata);
+	. = ALIGN(4);
         __end_text__ = .;
     } > FLASH
 
@@ -36,13 +38,13 @@ SECTIONS {
 	__data_end__ = .;
     } > RAM
     __data_size__ = __data_end__ - __data_start__;
-
+    
     .bss : {
         __bss_start__ = .;
-    	 * (.bss);
+    	* (.bss);
         . = ALIGN(4);
         __bss_end__ = .;
-    }
+    } > RAM
     __bss_size__ = __bss_end__ - __bss_start__;
     __stack_top = ORIGIN(RAM) + LENGTH(RAM);
 }

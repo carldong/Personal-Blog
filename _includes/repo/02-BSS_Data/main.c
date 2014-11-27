@@ -15,6 +15,7 @@
 
 unsigned long wait;
 unsigned long until = 0xDEADBEEF;
+const unsigned long begin = 0xDEAFBEEF;
 
 typedef unsigned int volatile * vp;
 void main() {
@@ -25,7 +26,7 @@ void main() {
   for(;;) {
     /* Toggle the LED */
     *(vp) 0xA0002300 |= 1 << 2;	/* NOT0 register */
-    wait = 0xDEAFBEEF;
+    wait = begin;
     while (wait > until) --wait;		/* WAIT */
   }
 }

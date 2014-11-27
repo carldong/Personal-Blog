@@ -8,4 +8,17 @@ tags: [tutorial, Cortex-M0+, ARM, linker]
 
 {% assign code_root = "repo/02-BSS_Data" %}
 
-In this tutorial, we are going to finish the vector table and the initialization of `.data` and `.bss` section. 
+In this tutorial, we are going to finish the vector table and the initialization of `.data` and `.bss` section. The tutorial will continue based on Tutorial 1 (I apologize that the archive and the folder is named `00-Getting_Started`, which should be `01`, but I don't want to change it).
+
+# Basics about `.data` and `.bss`
+**Disclaimer again: I am not expert on this topic, so I can be wrong.**
+
+`.data` section contains initialized variables in C. Such as:
+
+	unsigned int variable = 1;
+
+`.bss` section contains uninitialized variables. Such as:
+
+	unsigned int variable;
+
+Typically,

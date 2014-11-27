@@ -89,10 +89,11 @@ Reset_Handler:
 	beq init_bss
 
 copy:
-	ldrb r4, [r0]
-	strb r4, [r1]
-	adds r4, r4, #1
-	subs r2, r2, #1
+	ldrb r4, [r0]		@ Load *r0 to r4
+	strb r4, [r1]		@ Load r4 to *r1
+	adds r0, r0, #1		@ Increment flash pointer
+	adds r1, r1, #1		@ Increment RAM pointer
+	subs r2, r2, #1		@ Loop until all data are copied
 	bne copy
 
 init_bss:
@@ -105,8 +106,8 @@ init_bss:
 
 	movs r4, #0
 zero:
-	strb r4, [r0]
-	adds r4, r4, #1
+	strb r4, [r0]		@ Zero out
+	adds r0, r0, #1		@ Increment pointer
 	subs r2, r2, #1
 	bne zero
 
