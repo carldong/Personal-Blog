@@ -8,7 +8,7 @@
    remember I don't give any warrenty
  */
 
-/* ENTRY(Reset_Handler); */
+ENTRY(Reset_Handler);
 MEMORY {
     FLASH(rx) : ORIGIN = 0x0, LENGTH = 4K
     RAM(rwx) : ORIGIN = 0x10000000, LENGTH = 1K

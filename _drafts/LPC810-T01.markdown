@@ -3,6 +3,7 @@ layout: tutorial
 title: Getting Started With LPC810 Cortex-M0+ Microcontroller from Scratch
 categories: tutorials
 tags: tutorial Cortex-M0+ ARM
+code_root: repo/00-Getting_Started
 ---
 
 **Disclaimer: I am no ARM programming expert, and I myself am experimenting with all the things described in this series of, "tutorials". Therefore, I might be totally wrong in reasoning, but the code should be usable.**
@@ -45,7 +46,7 @@ Connect Pin 5 to ground through a pushbutton. When Pin 5 is pulled down(i.e. the
 
 Connect Pin 4(PIO0_2) to LED, series with resistor to ground. Pin 2 is the TXD in ISP mode, Pin 8 is the RXD in ISP mode. Connect them accordingly to the RX/TX pin of the TTL-USB converter. Note: my converter has its TX/RX label reversed for some version, so I have to connect TXD to TXD and RXD to RXD.
 
-If preferred, Pin 1(Reset) can be connected to ground through a pushbutton. I did not connect this button, so I reset by unplugging the TTL cable, but given that "Datasheet is the truth", this should work.
+Connect Pin 1 to ground through a pushbutton. If you do not connect this button, you can still reset the device by removing the power and then power on.
 
 # Software Preparation
 Install toolchain and lpc21isp (Ubuntu/Debian)
@@ -61,25 +62,114 @@ Done!
 ## Just test hardware
 Example Source Code if you like to just download and try: [00-Getting_Started.tar.xz]({{ site.baseurl/archives/00-Getting_Started.tar.xz }})
 
-Unpack the file somewhere you can remember. Plug the TTL-USB cable in(with the breadboard, of course). Hold the ISP button, then press the reset button. Still holding ISP button, execute
+Unpack the file somewhere you can remember. Plug the TTL-USB cable in(with the breadboard, of course). Hold the reset button, then hold the ISP button. Still holding ISP button, execute
 
 	make flash
 
-in the directory using UNIX command line(I assume you know how to do so). 
+in the directory using UNIX command line(I assume you know how to do so). You should see something like this:
 
+	lpc21isp main.hex /dev/ttyUSB0 115200 12000
+	lpc21isp version 1.94
+	File main.hex:
+		loaded...
+		converted to binary format...
+		image size : 276
+	Image size : 276
+	Synchronizing (ESC to abort). OK
+	Read bootcode version: 4
+	13
+	Read part ID: LPC810M021FN8, 4 kiB FLASH / 1 kiB SRAM (0x00008100)
+	Will start programming at Sector 1 if possible, and conclude with Sector 0 to ensure that checksum is written last.
+	Erasing sector 0 first, to invalidate checksum. OK 
+	Sector 0: ..|.
+	Download Finished... taking 0 seconds
+	Now launching the brand new code
+
+Then, press the reset button again. LED should blink.
 
 ## Starting from scratch
-Make a new folder, say, '00-Getting_Started'. Create a *Makefile*:
+In this section, I will explain the process of starting from scratch, and explain every details of the source code.
+
+Make a new folder, say, `00-Getting_Started`. Create a `Makefile`:
 
 {% highlight Makefile %}
-{% include repo/00-Getting_Started/Makefile %}
+{% include {{ code_root }}/Makefile %}
 {% endhighlight %}
 
-Then, create the folders and files referenced by the Makefile:
+Of course, this is not the best Makefile in the world, but good enough for this series.
 
-{% highlight bash %}
-mkdir -pv LPC810
-touch main.c crt0.S LPC810/lpc810.ld
+Then, create the folders and files referenced by the `Makefile`:
+
+	mkdir -pv LPC810
+	touch main.c crt0.S LPC810/lpc810.ld
+
+Now, here comes the main code:
+
+{% highlight C linenos %}
+{% include {{ code_root }}/main.c %}
 {% endhighlight %}
 
+There is nothing fancy. The special memory addresses are the device specific addresses to control hardware. In order to access those, the addresses are cast into volaile pointers. These addresses can be found under the *LPC81x User Manual*. The `PINENABLE0` address is found in *Chapter 9, LPC81x Switch Matrix*, the `DIR0` and `NOT0` addresses are under *Chapter 7, LPC81x GPIO Port*. I will only point the location in this tutorial, and I will not do so for the next ones.
+First, the SWD related functions are disabled so that the LED pin has GPIO enabled:
 
+	*(vp) 0x4000C1C0 = 0xFFFFFFBFUL;	/* PINENABLE0 register */
+
+Then, `PIO0_2` is set to output mode:
+
+	*(vp) 0xA0002000 |= 1 << 2;
+
+In an infinite loop, the LED is toggled by writing to the `NOT0` register:
+
+    *(vp) 0xA0002300 |= 1 << 2;	/* NOT0 register */
+
+To slow down the blink enough, we just waste a lot of cycles doing nothing.
+
+    volatile long wait = 240000;
+    while (wait > 0) --wait;		/* WAIT */
+
+That's it for the `main.c`. Simple. However, with only this source file, the linker can't know where to put the code in the executable. Therefore, we need to tell it where to put what. Now let's look at/*  the `LPC810/lpc810.ld`.
+
+{% highlight LD linenos %}
+{% include {{ code_root }}/LPC810/lpc810.ld %}
+{% endhighlight %}
+
+An executable is divided into multiple sections. Each section is placed into a storage device in the microcontroller. The starting address and size are documented in datasheet, in section *Memory Map*. In our case, an LPC810 has 4K flash and 1K RAM, starting at address `0x00000000` and `0x10000000`, therefore, we have the following snippet of LD script(ignore the `ENTRY()` for now):
+
+	MEMORY {
+	    FLASH(rx) : ORIGIN = 0x0, LENGTH = 4K
+	    RAM(rwx) : ORIGIN = 0x10000000, LENGTH = 1K
+	}
+
+This means there are two storage devices, `FLASH` and `RAM`. `FLASH` is **r**eadable and e**x**ecutable, while the RAM is **r**eadable, e**x**ecutable, and **w**ritable. `FLASH` starts at `0x0` and is `4KB` long, while `RAM` starts at `0x10000000` and is `1KB` long.
+
+After storage devices are defined, we need to tell the linker specific information about where each sections go. Before explaining the script, we need to know some information about the Cortex-M0+ processor. In the *Cortex-M0+ Devices Generic User Guide*, section *2.3.4 Vector Table*, we see that a vector table comes at the very first of the memory address: `0x00000000`. It stores the initial stack pointer value, and then 15  **addresses** of the core Cortex-M0+ exception handlers. After that, there are device specific interrupt handler addresses. Note that since this is a 32 bit device, each address takes 4 bytes. According to the *LPC81x User Manual*, section *3.3.1 Interrupt Sources*, there are 32 interrupt sources. Therefore, the first 48 `long`(4 bytes wide each) values are taken by the vector table, so the executable codes will go after them. In other words, the executable code starts at address $$(48+1)*4 = 0xC4$$.
+
+Now we can look into the code.
+
+    . = ORIGIN(FLASH);
+
+This means the "current" address is set to the origin of `FLASH`. This line tells the linker to place code starting at this address.
+
+    .text : {
+        KEEP(* (.isr_vectors));
+	. = ALIGN(4);
+	. = 0xC4;		/* The end of vectors. Just for tutorial 0 */
+	__vec_end__ = .;
+	* (.text);
+	. = ALIGN(4);
+	__end_text__ = .;
+    } > FLASH
+
+`.text` is the target section that the code will be placed into. In order to make sure the vector table is *always* placed before anything, we make it a seperate section, in this case, `.isr_vectors`. The `KEEP` here is just telling the linker that it should never discard this section even if it is not referenced (affected by `-Wl,--gc-sections`). When source files are compiled, different object files are generated, `main.o` and `crt0.o` in this case. Now we go over the syntax even more carefully.
+
+	* (.isr_vectors);
+
+This means for all object files (indicated by wildcard `*`), copy the `.isr_vectors` section into the target address. In this case, `0x0`.
+
+	. = ALIGN(4);
+
+Since Cortex-M0+ is 32 bits, each instruction is 4 bytes wide. Therefore, we need to align the code to instructions before advancing to next section. If it is not aligned, the linker just appends `nop` (that is an observation, not completely sure).
+
+	. = 0xC4;
+
+This line is just for this tutorial because otherwise you have to type a whole list of 48 vectors and create 48 function definitions before you can even start blinking an LED. We all know from above that the actual executable starts at `0xC4`, so this is totally fine(and I have tested it, so really, it is fine).
