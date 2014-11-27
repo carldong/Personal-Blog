@@ -1,0 +1,11 @@
+---
+layout: tutorial
+title: "LPC810 Cortex-M0+ Programming from Scratch - Part 2: .data and .bss"
+categories: tutorials
+date: 0000-01-01
+tags: [tutorial, Cortex-M0+, ARM, linker]
+---
+
+{% assign code_root = "repo/02-BSS_Data" %}
+
+In this tutorial, we are going to finish the vector table and the initialization of `.data` and `.bss` section. 
