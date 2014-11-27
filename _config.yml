@@ -12,4 +12,4 @@ github_username:  carldong
 #markdown: rdiscount
 markdown: kramdown
 
-exclude: [upload.sh]
+exclude: [build.sh,connect.sh,upload.sh,serve.sh,_publish]
