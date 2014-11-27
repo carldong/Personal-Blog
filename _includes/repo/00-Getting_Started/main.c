@@ -1,4 +1,6 @@
 /**
+   Author: Rongcui Dong
+
    This is the main code for the LPC810/Cortex-M0+ tutorial series:
    00-Getting_Started.
    Originally posted on:

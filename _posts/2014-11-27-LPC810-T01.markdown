@@ -231,7 +231,7 @@ As it looks like, this tells the assembler to align code to 4 byte instructions.
 	.long __stack_top
 	.long Reset_Handler
 
-This defines two long expressions. The first one contains the symbol `__stack_top`, defined in linker script. The second one contains the symbol `Reset_Handler`, which is defined later. Notice that the first `.long` takes the addresses `0x00` to `0x03`, and the second `.long` takes `0x04` to `0x07`. Recall the vector table in *Cortex-M0+ Devices Generic User Guide* (will be abbreviated as *CM0 Guide* from now on), the first long is indeed the initial stack pointer, while the second one is the address of the program counter after a reset. Since we already set the beginning of `.text` to be `0xC4`, we don't need to define all the other vectors. Convinient, right?
+This defines two long expressions. The first one contains the symbol `__stack_top`, defined in linker script. The second one contains the symbol `Reset_Handler`, which is defined later. Notice that the first `.long` takes the addresses `0x00` to `0x03`, and the second `.long` takes `0x04` to `0x07`. Recall the vector table in *Cortex-M0+ Devices Generic User Guide* (will be abbreviated as *CM0 Guide* from now on), the first long is indeed the initial stack pointer, while the second one is the address of the program counter after a reset. Since we already set the beginning of `.text` to be `0xC4`, we don't need to define all the other vectors. Convenient, right?
 
 	.text
 

@@ -1,11 +1,13 @@
 /**
-   This is the startup code for the LPC810/Cortex-M0+ tutorial series:
-   00-Getting_Started.
-   Originally posted on:
-   http://homepages.rpi.edu/~dongr2/
+    Author: Rongcui Dong
+
+    This is the startup code for the LPC810/Cortex-M0+ tutorial series:
+    00-Getting_Started.
+    Originally posted on:
+    http://homepages.rpi.edu/~dongr2/
    
-   Licence: Do anything with it, I don't care. Public Domain. Just
-   remember I don't give any warrenty
+    Licence: Do anything with it, I don't care. Public Domain. Just
+    remember I don't give any warrenty
 */
 	.syntax unified
 	.thumb
