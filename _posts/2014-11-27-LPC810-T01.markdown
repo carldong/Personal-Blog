@@ -40,7 +40,7 @@ This chip does have a lot of limitations though. The one biggest down side for m
 - ARM Toolchain. If you don't have experience, get a precompiled one. I have several experience that when I compile my own and encountered some unsolvable problems, simply changing the toolchain fixed the problem. Try the gcc-arm on Ubuntu/Debian or the CodeSourcery toolchain.
 - [lpc21isp](http://sourceforge.net/projects/lpc21isp/). The downloader.
 
-# Hardware Wireup
+# Hardware Wiring
 Wire the 3.3V to Pin 6(Vdd) of the LPC810. Connect ground to Pin 7(Vss).
 
 Connect Pin 5 to ground through a pushbutton. When Pin 5 is pulled down(i.e. the pushbutton is being pressed) during reset, chip enters ISP command handler, and can be programmed.
@@ -58,10 +58,10 @@ apt-get install gcc-arm lpc21isp
 
 Done!
 
-# Prepare Source code base
+# Start Coding!
 
 ## Just test hardware
-Example Source Code if you like to just download and try: [00-Getting_Started.tar.xz]({{ site.baseurl/archives/00-Getting_Started.tar.xz }})
+Example Source Code if you like to just download and try: [00-Getting_Started.tar.xz]({{ site.baseurl }}/archives/00-Getting_Started.tar.xz)
 
 Unpack the file somewhere you can remember. Plug the TTL-USB cable in(with the breadboard, of course). Hold the reset button, then hold the ISP button. Please try to push the buttons in this sequence, otherwise if you have set the pin that connects to the ISP button to output and HIGH, think what would happend when you push that down before the controller is reset. Still holding ISP button, execute
 
@@ -146,9 +146,16 @@ An executable is divided into multiple sections. Each section is placed into a s
 	    RAM(rwx) : ORIGIN = 0x10000000, LENGTH = 1K
 	}
 
-This means there are two storage devices, `FLASH` and `RAM`. `FLASH` is **r**eadable and e**x**ecutable, while the RAM is **r**eadable, e**x**ecutable, and **w**ritable. `FLASH` starts at `0x0` and is `4KB` long, while `RAM` starts at `0x10000000` and is `1KB` long.
+This means there are two storage devices, `FLASH` and `RAM`. `FLASH` is **r**eadable and e**x**ecutable, while the RAM is **r**eadable, e**x**ecutable, and **w**ritable. `FLASH` starts at `0x0` and is `4KB` long, while `RAM` starts at `0x10000000` and is `1KB` long. `FLASH` device is the read only permanent memory where the code stays, and `RAM` is the working memory when the code runs.
 
-After storage devices are defined, we need to tell the linker specific information about where each sections go. Before explaining the script, we need to know some information about the Cortex-M0+ processor. In the *Cortex-M0+ Devices Generic User Guide*, section *2.3.4 Vector Table*, we see that a vector table comes at the very first of the memory address: `0x00000000`. It stores the initial stack pointer value, and then 15  **addresses** of the core Cortex-M0+ exception handlers. After that, there are device specific interrupt handler addresses. Note that since this is a 32 bit device, each address takes 4 bytes. According to the *LPC81x User Manual*(Will be abbreviated as *81X Manual*), section *3.3.1 Interrupt Sources*, there are 32 interrupt sources. Therefore, the first 48 `long`(4 bytes wide each) values are taken by the vector table, so the executable codes will go after them. In other words, the executable code starts at address $$(48+1)*4 = 0xC4$$.
+After storage devices are defined, we need to tell the linker specific information about where each sections go. Before explaining the script, we need to know some information about the Cortex-M0+ processor. In the *Cortex-M0+ Devices Generic User Guide*, section *2.3.4 Vector Table*, we see that a vector table comes at the very first of the memory address: `0x00000000`. It stores the initial stack pointer value, and then 15  **addresses** of the core Cortex-M0+ exception handlers. After that, there are device specific interrupt handler addresses. Note that since this is a 32 bit device, each address takes 4 bytes. According to the *LPC81x User Manual*(Will be abbreviated as *81X Manual*), section *3.3.1 Interrupt Sources*, there are 32 interrupt sources. Therefore, the first 48 `long`(4 bytes wide each) values are taken by the vector table, so the executable codes will go after them. In other words, the executable code starts at address `(48+1)*4 = 0xC4`
+
+
+
+
+
+
+.
 
 Now we can look into the code.
 
@@ -167,6 +174,12 @@ This means the "current" address is set to the origin of `FLASH`. This line tell
     } > FLASH
 
 `.text` is the target section that the code will be placed into. In order to make sure the vector table is *always* placed before anything, we make it a seperate section, in this case, `.isr_vectors`. The `KEEP` here is just telling the linker that it should never discard this section even if it is not referenced (affected by `-Wl,--gc-sections`). When source files are compiled, different object files are generated, `main.o` and `crt0.o` in this case. Now we go over the syntax even more carefully.
+
+	.text : {
+	...
+	} > FLASH
+
+This means the target section is `.text`, and it will be put on the storage device `FLASH`.
 
 	* (.isr_vectors);
 
@@ -187,12 +200,6 @@ This is just a symbol for use in source codes. `__vec_end__` will store the curr
 	* (.text)
 
 This is the same meaning as before. Copy the `.text` section from each object file, put it in the executable.
-
-	.text : {
-	...
-	} > FLASH
-
-This means the target `.text` section will be put on the storage device `FLASH`.
 
     __stack_top = ORIGIN(RAM) + LENGTH(RAM);
 
@@ -257,3 +264,15 @@ Now the startup code is finished. Do the same thing as compiling the example:
 	make flash
 
 Don't forget to press the ISP button. Also don't forget to reset after programming. After reset, you should see the LED blink!
+
+### Some Notes
+
+If you look at the disassembled file `main.disasm`, in the first 'subsection' under section `.text`, you will see:
+
+	Disassembly of section .text:
+
+	00000000 <main-0xc4>:
+	   0:   10000400        andne   r0, r0, r0, lsl #8
+	   4:   00000111        andeq   r0, r0, r1, lsl r1
+
+According to *dwelch*'s reply in [this post](http://stackoverflow.com/questions/27118795/cortex-m0-linker-script-and-startup-code), the address of all exception handlers should be *odd*. Remember the first item is the initial stack pointer, so that is correct.
