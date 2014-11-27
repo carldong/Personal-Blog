@@ -11,7 +11,7 @@
 	.thumb
 
 	.section .isr_vectors
-	.align 2
+	.align
 	.long __stack_top
 	.long Reset_Handler
 	

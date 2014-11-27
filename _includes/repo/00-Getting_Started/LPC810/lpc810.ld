@@ -25,10 +25,6 @@ SECTIONS {
 	. = ALIGN(4);
 	__end_text__ = .;
     } > FLASH
-    .data : AT (__end_text__) {
-    	__start_data__ = .;
-	* (.data*);
-    } > RAM
     __stack_top = ORIGIN(RAM) + LENGTH(RAM);
 }
 
