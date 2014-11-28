@@ -23,8 +23,10 @@ SECTIONS {
         __vec_end__ = .;
         /*. = 0xC4;*/ /* End of vectors */
         * (.text);
+        * (.text*);
         . = ALIGN(4);
 	* (.rodata);
+	* (.rodata*);
 	. = ALIGN(4);
         __end_text__ = .;
     } > FLASH
@@ -34,6 +36,7 @@ SECTIONS {
     .data : AT(__flash_sdata__){
     	__data_start__ = .;
         * (.data);
+        * (.data*);
         . = ALIGN(4);
 	__data_end__ = .;
     } > RAM
@@ -42,6 +45,7 @@ SECTIONS {
     .bss : {
         __bss_start__ = .;
     	* (.bss);
+    	* (.bss*);
         . = ALIGN(4);
         __bss_end__ = .;
     } > RAM
