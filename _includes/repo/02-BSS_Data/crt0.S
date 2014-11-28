@@ -9,9 +9,7 @@
     Licence: Do anything with it, I don't care. Public Domain. Just
     remember I don't give any warrenty
 */
-	/*
-	This is the startup file for LPC81x. The C definition of the vector tables are defined in vector.c
-	*/
+
 	.syntax unified
 	.thumb
 	.section .isr_vectors

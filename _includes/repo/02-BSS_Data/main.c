@@ -6,9 +6,6 @@
    Originally posted on:
    http://homepages.rpi.edu/~dongr2/
 
-   Inspired by http://midibel.com/blink0.html, but I rewrote the whole
-   thing
-   
    Licence: Do anything with it, I don't care. Public Domain. Just
    remember I don't give any warrenty
 */
