@@ -276,3 +276,5 @@ If you look at the disassembled file `main.disasm`, in the first 'subsection' un
 	   4:   00000111        andeq   r0, r0, r1, lsl r1
 
 According to *dwelch*'s reply in [this post](http://stackoverflow.com/questions/27118795/cortex-m0-linker-script-and-startup-code), the address of all exception handlers should be *odd*. Remember the first item is the initial stack pointer, so that is correct.
+
+[Part 2]({{ site.baseurl }}{% post_url 2014-11-27-LPC810-T02 %})
