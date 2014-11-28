@@ -91,9 +91,9 @@ Reset_Handler:
 copy:
 	ldrb r4, [r0]		@ Load *r0 to r4
 	strb r4, [r1]		@ Load r4 to *r1
-	adds r0, r0, #1		@ Increment flash pointer
-	adds r1, r1, #1		@ Increment RAM pointer
-	subs r2, r2, #1		@ Loop until all data are copied
+	adds r0, #1		@ Increment flash pointer
+	adds r1, #1		@ Increment RAM pointer
+	subs r2, #1		@ Loop until all data are copied
 	bne copy
 
 init_bss:
@@ -107,11 +107,11 @@ init_bss:
 	movs r4, #0
 zero:
 	strb r4, [r0]		@ Zero out
-	adds r0, r0, #1		@ Increment pointer
-	subs r2, r2, #1
+	adds r0, #1		@ Increment pointer
+	subs r2, #1
 	bne zero
 
 crt0:
 	cpsie i
 	b main
-.align
+.align			

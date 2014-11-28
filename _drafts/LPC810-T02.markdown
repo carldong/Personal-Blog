@@ -177,3 +177,79 @@ The `{cond}` here is suffix to the condition to test. If the condition is true, 
 Therefore, if `__data_size__` is zero, the label `copy` will be skipped. Otherwise, it is executed.
 
 The next instruction:
+
+	ldr\<h|b\> Rt, [Rn{, #imm}]
+
+Here, the `\<h|b\>` means it can be `ldrh` or `ldrb`. `ldrh` loads a halfword(2 bytes), while `ldrb` loads one byte. If written in syntax like C it is something like
+
+	Rt = *(Rn+imm)
+
+That means, load a value to register *Rt* from the address stored in *Rn* plus `#imm` (i.e the offset).
+
+Here, we are loading the value from address stored in `R0` into register `R4`
+
+	ldrb r4, [r0]
+
+The store instruction is
+
+	str\<h|b\> Rt, [Rn{, #imm}]
+
+It is basically the same as the load instruction. If written in C-like syntax it is
+
+	*(Rn+imm) = Rt
+
+That is, store the value of `R4` into the address in *Rn* with offset `#imm`.
+
+	add{s} {Rd, } Rn, \<Rn|#imm\>
+
+Here there are too many combinations, so please read the *CM0+ Guide* for detail. Just note that only `adds` can use immediate numbers, `add` can only take registers (at least for my device). Since we are copying data, we need to advance the 'pointers' after each copy, we have code like this:
+
+	adds r0, #1
+
+In order to copy the correct number of data, we decrement `R2`, which stores the remaining bytes to copy, and loop over `copy`. So we have:
+
+	subs r2, #1
+	bne copy
+
+This means, after the `subs` instruction, if `R2` is not zero, the flag *Z* is cleared, and the condition *NE* will be true, and `bne copy` will branch to copy label.
+
+The next section is the same, and the only unfamiliar instruction is
+
+	movs Rd, #imm
+
+Which means load an *immediate number* into register `Rd`. Here, the register `R4` is used to store value `0` for clearing the bss addresses.
+
+After the `copy` and `zero` section, it is finally time to branch to main!
+
+	cpsie i
+
+This instruction enables interrupts.
+
+	b main
+
+Here, since no `{cond}` is specified, the program will unconditionally branch to `main` label. In this case, it is just the `main()`.
+
+Finally, we need to align the code to 4 bytes becaue we use the Thumb instructions, which mixes some 32 bit instructions and some 16 bit instructions. I tried without the `.align` directive, and while I read the disassembly code and it seems that some part is incorrect. I am not completely sure about this, because the behavior doesn't look wrong. However, I will still include this just in case. The worst thing of this directive is to waste 2 bytes of flash, anyway.
+
+## The Main Code
+Now let's setup the main code to test that everything works right.
+
+{% highlight C %}
+{% include {{ code_root }}/main.c %}
+{% endhighlight %}
+
+This file does the same thing as the one in the previous part. However, it tests all sections and startup code:
+
+	unsigned long wait;
+
+This line tests the `.bss` section.
+
+	unsigned long until = 0xDEADBEEF;
+
+This line tests the `.data` section.
+
+	const unsigned long begin = 0xDEAFBEEF;
+
+This line tests the `.rodata` section.
+
+If the LED blinks, everything works.
