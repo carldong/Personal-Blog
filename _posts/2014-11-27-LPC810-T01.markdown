@@ -65,26 +65,26 @@ Example Source Code if you like to just download and try: [01-Getting_Started.ta
 
 Unpack the file somewhere you can remember. Plug the TTL-USB cable in(with the breadboard, of course). Hold the reset button, then hold the ISP button. Please try to push the buttons in this sequence, otherwise if you have set the pin that connects to the ISP button to output and HIGH, think what would happend when you push that down before the controller is reset. Still holding ISP button, execute
 
-	make flash
+    make flash
 
 in the directory using UNIX command line(I assume you know how to do so). You should see something like this:
 
-	lpc21isp main.hex /dev/ttyUSB0 115200 12000
-	lpc21isp version 1.94
-	File main.hex:
-		loaded...
-		converted to binary format...
-		image size : 276
-	Image size : 276
-	Synchronizing (ESC to abort). OK
-	Read bootcode version: 4
-	13
-	Read part ID: LPC810M021FN8, 4 kiB FLASH / 1 kiB SRAM (0x00008100)
-	Will start programming at Sector 1 if possible, and conclude with Sector 0 to ensure that checksum is written last.
-	Erasing sector 0 first, to invalidate checksum. OK 
-	Sector 0: ..|.
-	Download Finished... taking 0 seconds
-	Now launching the brand new code
+    lpc21isp main.hex /dev/ttyUSB0 115200 12000
+    lpc21isp version 1.94
+    File main.hex:
+        loaded...
+        converted to binary format...
+        image size : 276
+    Image size : 276
+    Synchronizing (ESC to abort). OK
+    Read bootcode version: 4
+    13
+    Read part ID: LPC810M021FN8, 4 kiB FLASH / 1 kiB SRAM (0x00008100)
+    Will start programming at Sector 1 if possible, and conclude with Sector 0 to ensure that checksum is written last.
+    Erasing sector 0 first, to invalidate checksum. OK 
+    Sector 0: ..|.
+    Download Finished... taking 0 seconds
+    Now launching the brand new code
 
 Then, press the reset button again. LED should blink.
 
@@ -102,8 +102,8 @@ Of course, this is not the best Makefile in the world, but good enough for this 
 
 Then, create the folders and files referenced by the `Makefile`:
 
-	mkdir -pv LPC810
-	touch main.c crt0.S LPC810/lpc810.ld
+    mkdir -pv LPC810
+    touch main.c crt0.S LPC810/lpc810.ld
 
 ### Main code
 Here comes the main code(`main.c`):
@@ -115,20 +115,20 @@ Here comes the main code(`main.c`):
 There is nothing fancy. The special memory addresses are the device specific addresses to control hardware. In order to access those, the addresses are cast into volaile pointers. These addresses can be found under the *LPC81x User Manual*. The `PINENABLE0` address is found in *Chapter 9, LPC81x Switch Matrix*, the `DIR0` and `NOT0` addresses are under *Chapter 7, LPC81x GPIO Port*. I will only point the location in this tutorial, and I will not do so for the next ones.
 First, the SWD related functions are disabled so that the LED pin has GPIO enabled:
 
-	*(vp) 0x4000C1C0 = 0xFFFFFFBFUL;	/* PINENABLE0 register */
+    *(vp) 0x4000C1C0 = 0xFFFFFFBFUL;    /* PINENABLE0 register */
 
 Then, `PIO0_2` is set to output mode:
 
-	*(vp) 0xA0002000 |= 1 << 2;
+    *(vp) 0xA0002000 |= 1 << 2;
 
 In an infinite loop, the LED is toggled by writing to the `NOT0` register:
 
-    *(vp) 0xA0002300 |= 1 << 2;	/* NOT0 register */
+    *(vp) 0xA0002300 |= 1 << 2;    /* NOT0 register */
 
 To slow down the blink enough, we just waste a lot of cycles doing nothing.
 
     volatile long wait = 240000;
-    while (wait > 0) --wait;		/* WAIT */
+    while (wait > 0) --wait;        /* WAIT */
 
 That's it for the `main.c`. Simple. However, with only this source file, the linker can't know where to put the code in the executable. Therefore, we need to tell it where to put what. In the next section, I will talk about how we instruct the linker to correctly place code.
 
@@ -141,10 +141,10 @@ Now let's look at  the `LPC810/lpc810.ld`.
 
 An executable is divided into multiple sections. Each section is placed into a storage device in the microcontroller. The starting address and size are documented in *81x Datasheet*, in section *Memory Map*. In our case, an LPC810 has 4K flash and 1K RAM, starting at address `0x00000000` and `0x10000000`, therefore, we have the following snippet of LD script(ignore the `ENTRY()` for now):
 
-	MEMORY {
-	    FLASH(rx) : ORIGIN = 0x0, LENGTH = 4K
-	    RAM(rwx) : ORIGIN = 0x10000000, LENGTH = 1K
-	}
+    MEMORY {
+        FLASH(rx) : ORIGIN = 0x0, LENGTH = 4K
+        RAM(rwx) : ORIGIN = 0x10000000, LENGTH = 1K
+    }
 
 This means there are two storage devices, `FLASH` and `RAM`. `FLASH` is **r**eadable and e**x**ecutable, while the RAM is **r**eadable, e**x**ecutable, and **w**ritable. `FLASH` starts at `0x0` and is `4KB` long, while `RAM` starts at `0x10000000` and is `1KB` long. `FLASH` device is the read only permanent memory where the code stays, and `RAM` is the working memory when the code runs.
 
@@ -165,39 +165,39 @@ This means the "current" address is set to the origin of `FLASH`. This line tell
 
     .text : {
         KEEP(* (.isr_vectors));
-	. = ALIGN(4);
-	. = 0xC4;		/* The end of vectors. Just for tutorial 0 */
-	__vec_end__ = .;
-	* (.text);
-	. = ALIGN(4);
-	__end_text__ = .;
+    . = ALIGN(4);
+    . = 0xC4;        /* The end of vectors. Just for tutorial 0 */
+    __vec_end__ = .;
+    * (.text);
+    . = ALIGN(4);
+    __end_text__ = .;
     } > FLASH
 
 `.text` is the target section that the code will be placed into. In order to make sure the vector table is *always* placed before anything, we make it a seperate section, in this case, `.isr_vectors`. The `KEEP` here is just telling the linker that it should never discard this section even if it is not referenced (affected by `-Wl,--gc-sections`). When source files are compiled, different object files are generated, `main.o` and `crt0.o` in this case. Now we go over the syntax even more carefully.
 
-	.text : {
-	...
-	} > FLASH
+    .text : {
+    ...
+    } > FLASH
 
 This means the target section is `.text`, and it will be put on the storage device `FLASH`.
 
-	* (.isr_vectors);
+    * (.isr_vectors);
 
 This means for all object files (indicated by wildcard `*`), copy the `.isr_vectors` section into the target address. In this case, `0x0`.
 
-	. = ALIGN(4);
+    . = ALIGN(4);
 
 Since Cortex-M0+ is 32 bits, each instruction is 4 bytes wide. Therefore, we need to align the code to instructions before advancing to next section. If it is not aligned, the linker just appends `0x0` (that is an observation, not necessarily true).
 
-	. = 0xC4;
+    . = 0xC4;
 
 This line is just for this tutorial because otherwise you have to type a whole list of 48 vectors and create 48 function definitions before you can even start blinking an LED. We all know from above that the actual executable starts at `0xC4`, so this is totally fine(and I have tested it, so really, it is fine). Of course, you can still keep this line for the next tutorials if you like.
 
-	__vec_end__ = .;
+    __vec_end__ = .;
 
 This is just a symbol for use in source codes. `__vec_end__` will store the current address, and can be referenced by C or assembly code.
 
-	* (.text)
+    * (.text)
 
 This is the same meaning as before. Copy the `.text` section from each object file, put it in the executable.
 
@@ -207,7 +207,7 @@ This defines the begining of the stack, which locates at the end of RAM and grow
 
 Finally, we have some more symbols defined about the end of code. Now we come back to the first line:
 
-	ENTRY(Reset_Handler)
+    ENTRY(Reset_Handler)
 
 This means the 'entry point' of the executable is the symbol `Reset_Handler`, i.e. when the device starts, the first executed instruction is at the address of symbol `Reset_Handler`. Note that `Reset_Handler` does *not* need to be a function, it can be any symbols(I think it needs to be global, though). Although I haven't tested it, a plain address should also work in this definition.
 
@@ -220,48 +220,48 @@ Now we have the correct placement of the sections. However, we still need to wri
 
 First, we have something to tell the assembler:
 
-	.syntax unified
-	.thumb
+    .syntax unified
+    .thumb
 
 This tells the assembler(GNU AS in this case) to use *Unified Assembler Language* and Thumb instructions.
 
 Now we start with the vector table.
 
-	.section .isr_vectors
+    .section .isr_vectors
 
 This tells the assembler to place the later code into section `.isr_vectors`.
 
-	.align
+    .align
 
 As it looks like, this tells the assembler to align code to 4 byte instructions.
 
-	.long __stack_top
-	.long Reset_Handler
+    .long __stack_top
+    .long Reset_Handler
 
 This defines two long expressions. The first one contains the symbol `__stack_top`, defined in linker script. The second one contains the symbol `Reset_Handler`, which is defined later. Notice that the first `.long` takes the addresses `0x00` to `0x03`, and the second `.long` takes `0x04` to `0x07`. Recall the vector table in *Cortex-M0+ Devices Generic User Guide* (will be abbreviated as *CM0 Guide* from now on), the first long is indeed the initial stack pointer, while the second one is the address of the program counter after a reset. Since we already set the beginning of `.text` to be `0xC4`, we don't need to define all the other vectors. Convenient, right?
 
-	.text
+    .text
 
 This means put the later code into the `.text` section. This line is the same as `.section .text`.
 
-	.thumb_func
+    .thumb_func
 
 This line is needed for GNU AS to generate correct mix of Thumb/ARM instructions. I don't know a lot about this, but I know that if this line is omitted, the generated executable is incorrect.
 
-	.global Reset_Handler
+    .global Reset_Handler
 
 This line makes symbol `Reset_Handler` to be global, so that code from other source files can access this symbol.
 
-	Reset_Handler:
-	crt0:
-		b main
+    Reset_Handler:
+    crt0:
+        b main
 
 Why do I have two symbols but nothing between? Because there will be some initialize code there for the next tutorials. These three lines are the minimal code to execute the `main()`. For newbies(like me), notice that the symbols don't take up memory, so the only line of code here is `b main`. As documented in both *CM0 Guide* and *81x Manual*, `B{cc} <label>` is the instruction for "Branch to \<label\> {conditionally}". In this case, "branch to label `main` unconditionally".
 
 Now the startup code is finished. Do the same thing as compiling the example:
 
-	make
-	make flash
+    make
+    make flash
 
 Don't forget to press the ISP button. Also don't forget to reset after programming. After reset, you should see the LED blink!
 
@@ -269,11 +269,11 @@ Don't forget to press the ISP button. Also don't forget to reset after programmi
 
 If you look at the disassembled file `main.disasm`, in the first 'subsection' under section `.text`, you will see:
 
-	Disassembly of section .text:
+    Disassembly of section .text:
 
-	00000000 <main-0xc4>:
-	   0:   10000400        andne   r0, r0, r0, lsl #8
-	   4:   00000111        andeq   r0, r0, r1, lsl r1
+    00000000 <main-0xc4>:
+       0:   10000400        andne   r0, r0, r0, lsl #8
+       4:   00000111        andeq   r0, r0, r1, lsl r1
 
 According to *dwelch*'s reply in [this post](http://stackoverflow.com/questions/27118795/cortex-m0-linker-script-and-startup-code), the address of all exception handlers should be *odd*. Remember the first item is the initial stack pointer, so that is correct.
 
