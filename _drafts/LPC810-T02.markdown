@@ -107,7 +107,7 @@ This section only gives the startup file `crt0.S`. It will be explained later
 
 
 ## Vector Table
-This part is just work: Copy everything from the *CM0 Guide*(Cortex-M0+ Devices Generic User Guide) and *81x Manual*(LPC81x User Manual). It is just that long list of `.long` expressions. Note that currently none of the added labels are defined yet, so we are going to define them. Since we all like C instead of assembly(at least, for me), we are going to define them in a C file. Here comes `vector.c`:
+This part is just work: Copy everything from the *CM0+ Guide*(Cortex-M0+ Devices Generic User Guide) and *81x Manual*(LPC81x User Manual). It is just that long list of `.long` expressions. Note that currently none of the added labels are defined yet, so we are going to define them. Since we all like C instead of assembly(at least, for me), we are going to define them in a C file. Here comes `vector.c`:
 
 {% highlight C %}
 {% include {{ code_root }}/vectors.c %}
@@ -126,3 +126,54 @@ This basically means the C compiler is not saving context of this function, so c
 
 Here, the attribute `weak` means that we can override this declaration somewhere else. `alias` means that it is just another name of `_unhandled_exception()`. Now, whenever there is an exception occuring but we have not defined a handler, the `_unhandled_exception()` will be called.
 
+
+## Initialization
+Now we are finally explaining how `.data` and `.bss` is initialized. Before looking at the code, please have the *CM0+ Guide* or *81x Manual* open to the section where instructions are described.
+
+		.thumb_func
+		.global Reset_Handler
+	Reset_Handler:
+		cpsid i
+		ldr r0, =__flash_sdata__
+		ldr r1, =__data_start__
+		ldr r2, =__data_size__
+
+As explained in previous part, `.thumb_func` is required for the assembler to correctly generate code. `.global Reset_Handler` means that the *symbol* `Reset_Handler` is accessible externally. I will go over syntax of each line containing new instructions or directives here.
+
+	\<label\>:
+
+This is a label containing the address of the *next* instruction.
+
+	cpsid i
+
+This instruction disables all maskable interrupts
+
+	ldr Rt, label
+
+This instruction loads the value from address *label* into register *Rt*. Here, for example, we have label `__flash_sdata__`. Here I don't understand the detailed reasoning of the syntax, but to load the address of a label you will need `=label_name`. In this case,
+
+	ldr r0, =__flash_sdata__
+
+The next unfamiliar instruction is
+
+	cmp Rn, #imm
+
+This compares an *immediate number* with value stored in *Rn*. An *immediate number* is a constant that is a part of the instruction. Here, the `imm` must be in range 0-255. The reasoning of this is quite simple. One instruction is 32 bit wide. In this instruction, `cmp` takes 16 bits, *Rn* takes 8 bits. Note: that is an observation, not necessarily correct.
+
+Here, we have
+
+	cmp r2, #0
+
+If the value in *R2* equals to 0, the condition flag *Z* in register *Application Program Status Retister*(APSR) is set(read *CM0+ Guide* for detailed description).
+
+Next instruction is
+
+	b{cond} label
+
+The `{cond}` here is suffix to the condition to test. If the condition is true, the program will *branch* to the label, i.e. the next instruction executed is the one right after the label. In our case, we are testing for equal, i.e. flag *Z* set. Therefore, the instruction used is:
+
+	beq init_bss
+
+Therefore, if `__data_size__` is zero, the label `copy` will be skipped. Otherwise, it is executed.
+
+The next instruction:
