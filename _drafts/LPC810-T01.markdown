@@ -5,7 +5,7 @@ categories: tutorials
 date: 0000-01-01
 tags: tutorial Cortex-M0+ ARM
 ---
-{% assign code_root = 'repo/00-Getting_Started' %}
+{% assign code_root = 'repo/01-Getting_Started' %}
 
 **Disclaimer: I am no ARM programming expert, and I myself am experimenting with all the things described in this series of, "tutorials". Therefore, I might be totally wrong in reasoning, but the code should be usable.**
 

@@ -8,7 +8,7 @@ tags: [tutorial, Cortex-M0+, ARM, linker]
 
 {% assign code_root = "repo/02-BSS_Data" %}
 
-In this tutorial, we are going to finish the vector table and the initialization of `.data` and `.bss` section. The tutorial will continue based on Tutorial 1 (I apologize that the archive and the folder is named `00-Getting_Started`, which should be `01`, but I don't want to change it).
+In this tutorial, we are going to finish the vector table and the initialization of `.data` and `.bss` section. The tutorial will continue based on Tutorial 1. If you want the entire working code, [02-BSS_Data.tar.xz]({{ site.baseurl }}/archives/02-BSS_Data.tar.xz).
 
 # Basics about .rodata, .data and .bss
 **Disclaimer again: I am not expert on this topic, so I can be wrong.**

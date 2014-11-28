@@ -5,7 +5,7 @@ date: "2014-11-27 14:38:16"
 categories: tutorials
 tags: [tutorial, Cortex-M0+, ARM, linker]
 ---
-{% assign code_root = 'repo/00-Getting_Started' %}
+{% assign code_root = 'repo/01-Getting_Started' %}
 
 **Disclaimer: I am no ARM programming expert, and I myself am experimenting with all the things described in this series of, "tutorials". Therefore, I might be totally wrong in reasoning, but the code should be usable.**
 
@@ -61,7 +61,7 @@ Done!
 # Start Coding!
 
 ## Just test hardware
-Example Source Code if you like to just download and try: [00-Getting_Started.tar.xz]({{ site.baseurl }}/archives/00-Getting_Started.tar.xz)
+Example Source Code if you like to just download and try: [01-Getting_Started.tar.xz]({{ site.baseurl }}/archives/01-Getting_Started.tar.xz)
 
 Unpack the file somewhere you can remember. Plug the TTL-USB cable in(with the breadboard, of course). Hold the reset button, then hold the ISP button. Please try to push the buttons in this sequence, otherwise if you have set the pin that connects to the ISP button to output and HIGH, think what would happend when you push that down before the controller is reset. Still holding ISP button, execute
 
