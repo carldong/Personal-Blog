@@ -48,6 +48,10 @@ SET(CMAKE_C_FLAGS
   "-O0 -mthumb -mcpu=cortex-m0plus -nostartfiles"
   )
 
+SET(CMAKE_ASM_FLAGS
+  "${CMAKE_ASM_FLAGS} ${CMAKE_C_FLAGS}"
+  )
+
 SET(CMAKE_EXE_LINKER_FLAGS "-T\"${LDS}\" -nostdlib")
 
 # Main ELF file

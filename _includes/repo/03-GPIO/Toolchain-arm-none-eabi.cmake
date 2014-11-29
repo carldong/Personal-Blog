@@ -31,6 +31,6 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
 SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
 
 # Enable preprocessor on assembly files
-SET(ASM_OPTIONS "-x assembler-with-cpp")
+#SET(ASM_OPTIONS "-x assembler-with-cpp")
 # Assembler Flags
-SET(CMAKE_ASM_FLAGS "${CFLAGS} ${ASM_OPTIONS}")
+SET(CMAKE_ASM_FLAGS "${CMAKE_C_CFLAGS} ${ASM_OPTIONS}")
