@@ -2,7 +2,7 @@
 layout: tutorial
 title: "LPC810 Cortex-M0+ Programming from Scratch - Part 3: Migrate to CMake and Start Writing Library"
 categories: tutorials
-date: 0000-01-01
+date: "2014-11-29 11:22:14"
 tags: [tutorial, Cortex-M0+, ARM, linker]
 ---
 
