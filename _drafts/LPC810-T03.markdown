@@ -81,17 +81,19 @@ This defines a type of `struct`, `SWM_Typedef`. At this point it is still unclea
 
 Reading the table, we see there are `PINASSIGN0` through `PINASSIGN8`, each takes a word, or 32 bits. Therefore, we add the definitions like this:
 
-	typedef struct {
-	  __IO uint32_t PINASSIGN0;
-	  __IO uint32_t PINASSIGN1;
-	  __IO uint32_t PINASSIGN2;
-	  __IO uint32_t PINASSIGN3;
-	  __IO uint32_t PINASSIGN4;
-	  __IO uint32_t PINASSIGN5;
-	  __IO uint32_t PINASSIGN6;
-	  __IO uint32_t PINASSIGN7;
-	  __IO uint32_t PINASSIGN8;
-	} SWM_TypeDef;
+{% highlight C %}
+struct {
+  uint32_t PINASSIGN0;
+  uint32_t PINASSIGN1;
+  uint32_t PINASSIGN2;
+  uint32_t PINASSIGN3;
+  uint32_t PINASSIGN4;
+  uint32_t PINASSIGN5;
+  uint32_t PINASSIGN6;
+  uint32_t PINASSIGN7;
+  uint32_t PINASSIGN8;
+} SWM_TypeDef;
+{% endhighlight %}
 
 In C, the start address of one element follows right after the end address of the previous element. Therefore, `PINASSIGN0` has offset `0x000` and `PINASSIGN1` has offset `0x004`, etc. Clearly, this pattern matches the table up to PINASSIGN8. The next element, `PINENABLE0`, has offset `0x1C0`, so we need some spacing after `PINASSIGN8`. Doing some simple math:
 
@@ -132,10 +134,121 @@ Both line does the exact same thing, but the second line is much clearer. Note t
 	d0:   4249            negs    r1, r1
 	d2:   50d1            str     r1, [r2, r3]
 
-Notice the `str` instruction, in the `[r2, r3]`, `r2` contains `0x4000C000`, and `r3` contains `0x1C0`. Therefore, this method takes 4 bytes more space than direct address access.
+Notice the `str` instruction, in the `[r2, r3]`, `r2` contains `0x4000C000`, and `r3` contains `0x1C0`. Therefore, this method takes 4 bytes more space than direct address access. However, once optimize is turned on, there should be no difference.
 
 ## IOCON
-We don't need to use this yet, but we are still including it. Note: since I haven't used it, so I cannot guarantee that this part is correct, so I will not explain it here. Please read the complete source
+We don't need to use this yet, but we are still including it. Note: since I haven't used it, so I cannot guarantee that this part is correct, so I will not explain it here. Please read the complete source. The only thing I'd like to mention is that unlike `struct`, where the starting address of each member follows the ending address of the previous member, all members in a `union` starts at the same address. Therefore, in the following code snippet:
+
+{% highlight C %}
+    union {
+    	uint32_t word;
+    	struct {
+    		uint8_t B0;
+    		uint8_t B1;
+    		uint8_t B2;
+    		uint8_t B3;
+    	} bytes;
+    	uint8_t array[4];
+    } a_union;
+{% endhighlight %}
+
+The struct `bytes` contains the same address as `word` and `array`, while `a_union.array[0]` is the same address as `a_union.bytes.B0`, etc. The entire `a_union` takes 4 bytes.
 
 ## GPIO Registers
-This is quite a long definition because the GPIO register includes a lot of information.
+This is quite a long definition because the GPIO register includes a lot of information. Please open the *81x Manual* to the *GPIO Port* chapter, *Register description* section. Now, let's look at the definition:
+
+{% highlight C %}
+typedef struct {
+  struct {            /* Offset: 0x0000 */
+    __IO uint8_t B0;
+    __IO uint8_t B1;
+    __IO uint8_t B2;
+    __IO uint8_t B3;
+    __IO uint8_t B4;
+    __IO uint8_t B5;
+    __IO uint8_t B6;
+    __IO uint8_t B7;
+    __IO uint8_t B8;
+    __IO uint8_t B9;
+    __IO uint8_t B10;
+    __IO uint8_t B11;
+    __IO uint8_t B12;
+    __IO uint8_t B13;
+    __IO uint8_t B14;
+    __IO uint8_t B15;
+    __IO uint8_t B16;
+    __IO uint8_t B17;
+  } PBYTE;
+
+  uint8_t RESERVED0[0xFED];
+
+  struct {            /* Offset: 0x1000 */
+    __IO uint32_t W0;
+    __IO uint32_t W1;
+    __IO uint32_t W2;
+    __IO uint32_t W3;
+    __IO uint32_t W4;
+    __IO uint32_t W5;
+    __IO uint32_t W6;
+    __IO uint32_t W7;
+    __IO uint32_t W8;
+    __IO uint32_t W9;
+    __IO uint32_t W10;
+    __IO uint32_t W11;
+    __IO uint32_t W12;
+    __IO uint32_t W13;
+    __IO uint32_t W14;
+    __IO uint32_t W15;
+    __IO uint32_t W16;
+    __IO uint32_t W17;
+  } PWORD;
+
+  uint8_t RESERVED1[0xFB8];
+  __IO uint32_t DIR;            /* Offset: 0x2000 */
+  uint8_t RESERVED2[0x7C];
+  __IO uint32_t MASK;        /* Offset: 0x2080 */
+  uint8_t RESERVED3[0x7C];
+  __IO uint32_t PIN;            /* Offset: 0x2100 */
+  uint8_t RESERVED4[0x7C];
+  __IO uint32_t MPIN;
+  uint8_t RESERVED5[0x7C];
+  __IO uint32_t SET;
+  uint8_t RESERVED6[0x7C];
+  __O uint32_t CLR;
+  uint8_t RESERVED7[0x7C];
+  __O uint32_t NOT;
+} GPIO_TypeDef;
+{% endhighlight %}
+
+This is basically the same principle as the switch matrix struct. Just notice that I pack the `PBYTE` and `PWORD` into separate structs to give easier access.
+
+To use this in main code, change
+
+    *(vp) 0xA0002000 |= 1 << 2;    /* DIR0, set PIO0_2 to output */
+
+to
+
+    GPIO0->DIR |= 1 << 2;
+
+And change
+
+    *(vp) 0xA0002300 |= 1 << 2;    /* NOT0 register */
+
+to
+
+    GPIO0->DIR |= 1 << 2;
+
+How clear it becomes! Now, with lots of lots of patience we can finally make the entire library(I haven't done so yet)!
+
+## The Complete Files
+device.h up to now:
+
+{% highlight C %}
+{% include {{ code_root }}/lpc810/device.h %}
+{% endhighlight %}
+
+main.c:
+
+{% highlight C %}
+{% include {{ code_root }}/main.c %}
+{% endhighlight %}
