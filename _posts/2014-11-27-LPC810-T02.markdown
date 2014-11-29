@@ -258,3 +258,5 @@ This line tests the `.rodata` section.
 If the LED blinks, everything works.
 
 Up to the date of writing (2014-11-27), this is the farthest I can go. In other words, that is all I know. I am now working on a library that defines useful macros and structs, and that will come next.
+
+[Part 3]({{ site.baseurl }}{% post_url 2014-11-29-LPC810-T03 %})

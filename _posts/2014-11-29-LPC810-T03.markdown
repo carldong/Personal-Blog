@@ -83,15 +83,15 @@ Reading the table, we see there are `PINASSIGN0` through `PINASSIGN8`, each take
 
 {% highlight C %}
 struct {
-  uint32_t PINASSIGN0;
-  uint32_t PINASSIGN1;
-  uint32_t PINASSIGN2;
-  uint32_t PINASSIGN3;
-  uint32_t PINASSIGN4;
-  uint32_t PINASSIGN5;
-  uint32_t PINASSIGN6;
-  uint32_t PINASSIGN7;
-  uint32_t PINASSIGN8;
+  __IO uint32_t PINASSIGN0;
+  __IO uint32_t PINASSIGN1;
+  __IO uint32_t PINASSIGN2;
+  __IO uint32_t PINASSIGN3;
+  __IO uint32_t PINASSIGN4;
+  __IO uint32_t PINASSIGN5;
+  __IO uint32_t PINASSIGN6;
+  __IO uint32_t PINASSIGN7;
+  __IO uint32_t PINASSIGN8;
 } SWM_TypeDef;
 {% endhighlight %}
 
@@ -103,7 +103,7 @@ $$
 
 We add an array of bytes for the spacing (I will not include the `struct {}`. If unclear, please read the complete file, or send me an email).
 
-	uint8_t RESERVE9[0x19C]
+	uint8_t RESERVED9[0x19C];
 
 Remember, the actual address does not correspond to any *physical memory*, so this won't take 412 bytes of memory. After this line, we define the `PINENABLE0`:
 
@@ -137,19 +137,19 @@ Both line does the exact same thing, but the second line is much clearer. Note t
 Notice the `str` instruction, in the `[r2, r3]`, `r2` contains `0x4000C000`, and `r3` contains `0x1C0`. Therefore, this method takes 4 bytes more space than direct address access. However, once optimize is turned on, there should be no difference.
 
 ## IOCON
-We don't need to use this yet, but we are still including it. Note: since I haven't used it, so I cannot guarantee that this part is correct, so I will not explain it here. Please read the complete source. The only thing I'd like to mention is that unlike `struct`, where the starting address of each member follows the ending address of the previous member, all members in a `union` starts at the same address. Therefore, in the following code snippet:
+We don't need to use this yet, but we are still including it. Note: since I haven't used it, I cannot guarantee that this part is correct, so I will not explain it here. Please read the complete source. The only thing I'd like to mention is that unlike `struct`, where the starting address of each member follows the ending address of the previous member, all members in a `union` starts at the same address. Therefore, in the following code snippet:
 
 {% highlight C %}
-    union {
-    	uint32_t word;
-    	struct {
-    		uint8_t B0;
-    		uint8_t B1;
-    		uint8_t B2;
-    		uint8_t B3;
-    	} bytes;
-    	uint8_t array[4];
-    } a_union;
+union {
+	uint32_t word;
+	struct {
+		uint8_t B0;
+		uint8_t B1;
+		uint8_t B2;
+		uint8_t B3;
+	} bytes;
+	uint8_t array[4];
+} a_union;
 {% endhighlight %}
 
 The struct `bytes` contains the same address as `word` and `array`, while `a_union.array[0]` is the same address as `a_union.bytes.B0`, etc. The entire `a_union` takes 4 bytes.
