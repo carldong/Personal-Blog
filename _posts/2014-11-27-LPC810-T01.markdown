@@ -53,7 +53,7 @@ Connect Pin 1 to ground through a pushbutton. If you do not connect this button,
 Install toolchain and lpc21isp (Ubuntu/Debian)
 
 {% highlight bash %}
-apt-get install gcc-arm lpc21isp
+apt-get install gcc-arm-none-eabi lpc21isp
 {% endhighlight %}
 
 Done!
