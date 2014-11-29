@@ -23,7 +23,7 @@ SET(OBJDUMP arm-none-eabi-objdump)
 SET(NM arm-none-eabi-nm)
 SET(SIZE arm-none-eabi-size)
 
-# Add your install path if you like.
+# Add your toolchain install path if you like.
 #SET(CMAKE_FIND_ROOT_PATH /opt/arm-none-eabi-toolchain)
 
 SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
@@ -31,6 +31,6 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
 SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
 
 # Enable preprocessor on assembly files
-#SET(ASM_OPTIONS "-x assembler-with-cpp")
+SET(ASM_OPTIONS "-x assembler-with-cpp")
 # Assembler Flags
 SET(CMAKE_ASM_FLAGS "${CMAKE_C_CFLAGS} ${ASM_OPTIONS}")

@@ -1,3 +1,14 @@
+/**
+   This is the device header file for LPC810, for the
+   LPC810 Cortex-M0+ Programming from Scratch
+   tutorial series.
+   
+   Author: Rongcui Dong
+   Originally posted: http://homepages.rpi.edu/~dongr2/
+
+   License: Public Domain. No warrenty of any kind. Appreciated but not 
+   required to keep my name
+ */
 #ifndef DEVICE_H
 #define DEVICE_H
 
@@ -122,6 +133,7 @@ typedef struct {
   __IO uint32_t PINENABLE0;
 } SWM_TypeDef;
 
+/* Device Registers */
 #define IOCON ((LPC_IOCON_TypeDef *) ((uint32_t) 0x40044000))
 #define GPIO0 ((GPIO_TypeDef *) ((uint32_t) 0xA0000000))
 #define SWM ((SWM_TypeDef *) ((uint32_t) 0x4000C000))
