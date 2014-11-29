@@ -118,7 +118,7 @@ typedef struct {
   __IO uint32_t PINASSIGN6;
   __IO uint32_t PINASSIGN7;
   __IO uint32_t PINASSIGN8;
-  uint32_t RESERVED9;
+  uint8_t RESERVED9[0x19C];
   __IO uint32_t PINENABLE0;
 } SWM_TypeDef;
 

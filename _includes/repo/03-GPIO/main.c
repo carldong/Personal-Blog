@@ -9,21 +9,23 @@
    Licence: Do anything with it, I don't care. Public Domain. Just
    remember I don't give any warrenty
 */
-//#include "lpc810/device.h"
+#include "lpc810/device.h"
 
 unsigned long wait;
 unsigned long until = 0xDEADBEEF;
 const unsigned long begin = 0xDEAFBEEF;
 
+const uint32_t test = (uint32_t) &(SWM->PINENABLE0);
+
 typedef unsigned int volatile * vp;
 void main() {
   /* PIO0_2 is used by SWD, so disable it */
-  *(vp) 0x4000C1C0 = 0xFFFFFFBFUL;	/* PINENABLE0 register */
+  SWM->PINENABLE0 = 0xFFFFFFBFUL;
   /* Set GPIO Direction */
-  *(vp) 0xA0002000 |= 1 << 2;	/* DIR0, set PIO0_2 to output */
+  GPIO0->DIR |= 1 << 2;
   for(;;) {
     /* Toggle the LED */
-    *(vp) 0xA0002300 |= 1 << 2;	/* NOT0 register */
+    GPIO0->NOT |= 1 << 2;
     wait = begin;
     while (wait > until) --wait;		/* WAIT */
   }

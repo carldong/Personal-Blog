@@ -10,6 +10,7 @@ OBJS = $(CSRC:.c=.o)
 OBJS += $(ASRC:.S=.o)
 
 CC=arm-none-eabi-gcc
+LD=arm-none-eabi-gcc
 OBJCOPY=arm-none-eabi-objcopy
 OBJDUMP=arm-none-eabi-objdump
 NM=arm-none-eabi-nm
@@ -20,7 +21,8 @@ PORT = /dev/ttyUSB0
 BAUD = 115200
 KFREQ = 12000
 
-CFLAGS=-O0 -mthumb -mcpu=cortex-m0plus -nostartfiles -Wl,-T$(LDS),-nostdlib,-Map=$(TGT).map
+CFLAGS=-O0 -mthumb -mcpu=cortex-m0plus -nostartfiles -ggdb
+LDFLAGS=-Wl,-T$(LDS),-nostdlib,-Map=$(TGT).map
 
 all: $(TGT).hex
 
@@ -28,7 +30,7 @@ all: $(TGT).hex
 	$(CC) $(CFLAGS) -c $^ -o $@
 
 $(TGT).elf: $(OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
+	$(LD) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
 $(TGT).hex: $(TGT).elf
 	$(OBJCOPY) $< -O ihex $@

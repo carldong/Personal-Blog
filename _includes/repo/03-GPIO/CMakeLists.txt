@@ -45,7 +45,7 @@ SET(LDS
 
 # Flags
 SET(CMAKE_C_FLAGS
-  "-O0 -mthumb -mcpu=cortex-m0plus -nostartfiles"
+  "-O0 -mthumb -mcpu=cortex-m0plus -nostartfiles -ggdb"
   )
 
 SET(CMAKE_ASM_FLAGS
