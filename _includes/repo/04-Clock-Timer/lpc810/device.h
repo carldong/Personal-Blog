@@ -201,10 +201,33 @@ typedef struct {
   __I uint32_t DEVICE_ID;	/* 0x3F8 */
 } LPC_SYSCON_TypeDef;
 
-/* Device Registers */
+/**
+   @brief Device Registers start here
+*/
 #define SYSCON ((LPC_SYSCON_TypeDef *) 0x40048000UL)
 #define IOCON ((LPC_IOCON_TypeDef *) 0x40044000UL)
 #define GPIO0 ((LPC_GPIO_TypeDef *) 0xA0000000UL)
 #define SWM ((LPC_SWM_TypeDef *) 0x4000C000UL)
+
+/**
+   @brief Bit definitions start here
+ */
+
+/* SYSCON registers */
+
+/* IOCON registers */
+
+/* GPIO registers */
+
+/* SWM registers */
+#define SWM_PINENABLE0_ACMP_I1_EN (0x00000001UL << 0)
+#define SWM_PINENABLE0_ACMP_I2_EN (0x00000001UL << 1)
+#define SWM_PINENABLE0_SWCLK_EN (0x00000001UL << 2)
+#define SWM_PINENABLE0_SWDIO_EN (0x00000001UL << 3)
+#define SWM_PINENABLE0_XTALIN_EN (0x00000001UL << 4)
+#define SWM_PINENABLE0_XTALOUT_EN (0x00000001UL << 5)
+#define SWM_PINENABLE0_RESET_EN (0x00000001UL << 6)
+#define SWM_PINENABLE0_CLKIN (0x00000001UL << 7)
+#define SWM_PINENABLE0_VDDCMP (0x00000001UL << 8)
 
 #endif // DEVICE_H

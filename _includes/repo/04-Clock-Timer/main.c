@@ -22,7 +22,7 @@ const uint32_t test = (uint32_t) &(SWM->PINENABLE0);
 typedef unsigned int volatile * vp;
 void main() {
   /* PIO0_2 is used by SWD, so disable it */
-  SWM->PINENABLE0 = 0xFFFFFFBFUL;
+  SWM->PINENABLE0 |= (SWM_PINENABLE0_SWCLK_EN | SWM_PINENABLE0_SWDIO_EN);
   /* Set GPIO Direction */
   GPIO0->DIR |= 1 << 2;
   for(;;) {
