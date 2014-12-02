@@ -231,8 +231,23 @@ typedef struct {
 #define SWM_PINENABLE0_VDDCMP (0x00000001UL << 8)
 
 /**
+   @brief Masks
+ */
+/* SYSCON masks */
+#define SYSPLLSTAT_LOCK_MASK _BV(0) 
+
+/**
    @brief Some useful macros
  */
 #define _BV(bit) (1 << bit)
+
+/* SYSCON helpers */
+#define SYSPLLCTRL_MSEL_BITS(val) (val)
+#define SYSPLLCTRL_PSEL_BITS(val) (val << 5)
+#define SYSPLLCLKSEL_SEL_BITS(val) (val)
+#define SYSAHBCLKDIV_DIV_BITS(val) (val)
+#define SYSAHBCLKSEL_IRC 0x00000000
+#define SYSAHBCLKSEL_SYSOSC 0x00000001
+#define SYSAHBCLKSEL_CLKIN 0x00000003
 
 #endif // DEVICE_H
