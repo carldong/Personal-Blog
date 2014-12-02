@@ -230,4 +230,9 @@ typedef struct {
 #define SWM_PINENABLE0_CLKIN (0x00000001UL << 7)
 #define SWM_PINENABLE0_VDDCMP (0x00000001UL << 8)
 
+/**
+   @brief Some useful macros
+ */
+#define _BV(bit) (1 << bit)
+
 #endif // DEVICE_H

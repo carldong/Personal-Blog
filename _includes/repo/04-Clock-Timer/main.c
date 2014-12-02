@@ -24,10 +24,10 @@ void main() {
   /* PIO0_2 is used by SWD, so disable it */
   SWM->PINENABLE0 |= (SWM_PINENABLE0_SWCLK_EN | SWM_PINENABLE0_SWDIO_EN);
   /* Set GPIO Direction */
-  GPIO0->DIR |= 1 << 2;
+  GPIO0->DIR |= _BV(2);
   for(;;) {
     /* Toggle the LED */
-    GPIO0->NOT |= 1 << 2;
+    GPIO0->NOT |= _BV(2);
     wait = begin;
     while (wait > until) --wait;		/* WAIT */
   }
